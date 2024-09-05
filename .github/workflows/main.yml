@@ -4,34 +4,30 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Step to checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      # Build and push the first image
+      - name: Build and push the first image (app)
+        uses: docker/build-push-action@v2
+        with:
+          context: ./multiapp # Context is the root directory containing the first Dockerfile
+          file: ./multiapp/Dockerfile # Path to the first Dockerfile
+          push: true
+          tags: ${{ secrets.ACR_NAME }}.azurecr.io/app:latest # Replace with your app image tag
 
-    - name: Log in to Azure Container Registry
-      run: echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_NAME }}.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
-
-    - name: Build and push Web image
-      uses: docker/build-push-action@v2
-      with:
-        context: ./multiapp # Set the build context to the folder where the web Dockerfile is located
-        file: ./multiapp/Dockerfile # Path to your web Dockerfile
-        push: true
-        tags: ${{ secrets.ACR_NAME }}.azurecr.io/web:latest
-
-    - name: Build and push Db image
-      uses: docker/build-push-action@v2
-      with:
-        context: ./multiapp/Dockerdb # Set the build context to the folder containing your Dockerdb directory
-        file: ./multiapp/Dockerdb/Dockerfile # Correct path to the Dockerfile for the DB image
-        push: true
-        tags: ${{ secrets.ACR_NAME }}.azurecr.io/db:latest
+      # Build and push the second image (db)
+      - name: Build and push the second image (db)
+        uses: docker/build-push-action@v2
+        with:
+          context: ./multiapp # Ensure context includes both the csproj and Dockerfile paths
+          file: ./multiapp/Dockerdb/Dockerfile # Path to the second Dockerfile
+          push: true
+          tags: ${{ secrets.ACR_NAME }}.azurecr.io/db:latest # Replace with your db image tag
