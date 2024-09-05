@@ -1,3 +1,10 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -7,17 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step to login to Azure
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       # Build and push the first image (app)
       - name: Build and push the first image (app)
         uses: docker/build-push-action@v2
         with:
-          context: ./multiapp # Context is the root directory containing the first Dockerfile
+          context: . # The context is the root of the repo; adjust if needed
           file: ./multiapp/Dockerfile # Path to the first Dockerfile
           push: true
           tags: ${{ secrets.ACR_NAME }}.azurecr.io/app:latest # Replace with your app image tag
@@ -26,7 +27,7 @@ jobs:
       - name: Build and push the second image (db)
         uses: docker/build-push-action@v2
         with:
-          context: ./multiapp # Ensure context includes both the csproj and Dockerfile paths
+          context: . # The context is the root of the repo; adjust if needed
           file: ./multiapp/Dockerdb/Dockerfile # Path to the second Dockerfile
           push: true
           tags: ${{ secrets.ACR_NAME }}.azurecr.io/db:latest # Replace with your db image tag
