@@ -23,15 +23,15 @@ jobs:
     - name: Build and push Web image
       uses: docker/build-push-action@v2
       with:
-        context: . # Set context to the root of your repository
-        file: ./multiapp/Dockerfile # Path to your Dockerfile
+        context: ./multiapp # Set the build context to the folder where the web Dockerfile is located
+        file: ./multiapp/Dockerfile # Path to your web Dockerfile
         push: true
         tags: ${{ secrets.ACR_NAME }}.azurecr.io/web:latest
 
     - name: Build and push Db image
       uses: docker/build-push-action@v2
       with:
-        context: . # Set context to the root of your repository
-        file: ./multiapp/DockerDbfile # Path to your Dockerfile
+        context: ./multiapp/Dockerdb # Set the build context to the folder containing your Dockerdb directory
+        file: ./multiapp/Dockerdb/Dockerfile # Correct path to the Dockerfile for the DB image
         push: true
         tags: ${{ secrets.ACR_NAME }}.azurecr.io/db:latest
